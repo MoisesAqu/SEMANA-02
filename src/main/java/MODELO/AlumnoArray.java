@@ -62,16 +62,19 @@ public class AlumnoArray {
 }
 
     
+    
     // Método para buscar alumnos por nombre o apellido
+    // Método para buscar alumnos por la inicial del nombre
     public ArrayList<Alumno> buscarPorNombreOApellido(String texto) {
         ArrayList<Alumno> resultados = new ArrayList<>();
-        texto = texto.toLowerCase(); // Convertir a minúsculas para evitar problemas con mayúsculas
+        texto = texto.toLowerCase(); // Convertimos a minúsculas para evitar problemas con mayúsculas
         for (Alumno alumno : listaAlumnos) {
-            if (alumno.getNombre().toLowerCase().contains(texto) || 
-                alumno.getApellido().toLowerCase().contains(texto)) {
+        // Comparamos solo con el inicio del nombre
+            if (alumno.getNombre().toLowerCase().startsWith(texto)) {
                 resultados.add(alumno);
-            }
         }
-        return resultados;
     }
+    return resultados;
+}
+
 }

@@ -12,6 +12,7 @@ package CONTROLADOR;
 import VISTA.FrmAlumno;
 import MODELO.Alumno;
 import MODELO.AlumnoArray;
+import java.text.SimpleDateFormat;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -55,80 +56,70 @@ public class Controlador {
         mostrarAlumnos();
     }
 
-    // Método para agregar un nuevo alumno
     private void agregarAlumno() {
-        if (!validarCampos()) {
-            JOptionPane.showMessageDialog(vista, "Por favor, complete todos los campos.");
-            return;
-        }
-
-        Alumno nuevoAlumno = new Alumno(
-                vista.getTxtCodigo().getText(),
-                vista.getTxtNombre().getText(),
-                vista.getTxtApellido().getText(),
-                vista.getTxtDni().getText(),
-                vista.getTxtTelefono().getText(),
-                vista.getJCalendar().getDate()
-        );
-
-        modelo.agregar(nuevoAlumno);
-        mostrarAlumnos();
-        limpiarCampos();
-        JOptionPane.showMessageDialog(vista, "Alumno agregado correctamente.");
-    }
+    limpiarCampos(); // Aquí limpiamos los campos para permitir la entrada de un nuevo alumno
+    modoEdicion = false; // Aseguramos que no estamos en modo edición
+    filaSeleccionada = -1; // Reiniciamos la selección de filas
+}
 
 
-    // Método para modificar un alumno
+
+
     private void modificarAlumno() {
+        // No limpiamos los campos aquí
         int selectedRow = vista.getVistaRegistro().getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(vista, "Seleccione un alumno de la tabla.");
             return;
         }
 
+        // Obtener los datos del alumno seleccionado
         Alumno alumno = modelo.getListaAlumnos().get(selectedRow);
-        alumno.setCodigo(vista.getTxtCodigo().getText());
-        alumno.setNombre(vista.getTxtNombre().getText());
-        alumno.setApellido(vista.getTxtApellido().getText());
-        alumno.setDni(vista.getTxtDni().getText());
-        alumno.setTelefono(vista.getTxtTelefono().getText());
-        alumno.setFechaNacimiento(vista.getJCalendar().getDate());
 
-        mostrarAlumnos();
-        limpiarCampos();
-        JOptionPane.showMessageDialog(vista, "Alumno modificado correctamente.");
+        // Rellenar los campos del formulario con los datos del alumno
+        vista.getTxtCodigo().setText(alumno.getCodigo());
+        vista.getTxtNombre().setText(alumno.getNombre());
+        vista.getTxtApellido().setText(alumno.getApellido());
+        vista.getTxtDni().setText(alumno.getDni());
+        vista.getTxtTelefono().setText(alumno.getTelefono());
+        vista.getJCalendar().setDate(alumno.getFechaNacimiento());
+
+        // Activar el modo edición
+        modoEdicion = true;
+        filaSeleccionada = selectedRow;
     }
 
-    // Método para mostrar los alumnos en la tabla
-    private void mostrarAlumnos() {
-        tableModel.setRowCount(0);
-        for (Alumno alumno : modelo.getListaAlumnos()) {
-            tableModel.addRow(new Object[]{
-                    alumno.getCodigo(),
-                    alumno.getNombre(),
-                    alumno.getApellido(),
-                    alumno.getDni(),
-                    alumno.getTelefono(),
-                    alumno.getFechaNacimiento()
-            });
-        }
-    }
 
-    // Método para buscar alumnos por nombre o apellido
-    private void buscarAlumno(String texto) {
-        tableModel.setRowCount(0);
-        ArrayList<Alumno> resultados = modelo.buscarPorNombreOApellido(texto);
-        for (Alumno alumno : resultados) {
-            tableModel.addRow(new Object[]{
-                    alumno.getCodigo(),
-                    alumno.getNombre(),
-                    alumno.getApellido(),
-                    alumno.getDni(),
-                    alumno.getTelefono(),
-                    alumno.getFechaNacimiento()
-            });
-        }
+   private void mostrarAlumnos() {
+    tableModel.setRowCount(0);
+    for (Alumno alumno : modelo.getListaAlumnos()) {
+        tableModel.addRow(new Object[]{
+                alumno.getCodigo(),
+                alumno.getNombre(),
+                alumno.getApellido(),
+                alumno.getDni(),
+                alumno.getTelefono(),
+                alumno.calcularEdad() + " años" // Mostrar la edad en formato "X años"
+        });
     }
+}
+
+    
+   private void buscarAlumno(String texto) {
+    tableModel.setRowCount(0); // Limpiamos la tabla
+    ArrayList<Alumno> resultados = modelo.buscarPorNombreOApellido(texto); // Usamos el método modificado
+    for (Alumno alumno : resultados) {
+        tableModel.addRow(new Object[]{
+            alumno.getCodigo(),
+            alumno.getNombre(),
+            alumno.getApellido(),
+            alumno.getDni(),
+            alumno.getTelefono(),
+            alumno.calcularEdad() + " años" // Seguimos mostrando la edad calculada
+        });
+    }
+}
+
 
     private void seleccionarFila() {
     filaSeleccionada = vista.getVistaRegistro().getSelectedRow();
@@ -174,23 +165,15 @@ public class Controlador {
 }
 
 
+    
     private void guardarAlumno() {
     if (!validarCampos()) {
         JOptionPane.showMessageDialog(vista, "Por favor, complete todos los campos.");
         return;
     }
 
-    // Si estamos en modo edición, actualizamos la fila seleccionada
+    // Si estamos en modo edición, actualizamos el alumno seleccionado
     if (modoEdicion && filaSeleccionada != -1) {
-        // Modificamos los datos directamente en la tabla
-        tableModel.setValueAt(vista.getTxtCodigo().getText(), filaSeleccionada, 0);
-        tableModel.setValueAt(vista.getTxtNombre().getText(), filaSeleccionada, 1);
-        tableModel.setValueAt(vista.getTxtApellido().getText(), filaSeleccionada, 2);
-        tableModel.setValueAt(vista.getTxtDni().getText(), filaSeleccionada, 3);
-        tableModel.setValueAt(vista.getTxtTelefono().getText(), filaSeleccionada, 4);
-        tableModel.setValueAt(vista.getJCalendar().getDate(), filaSeleccionada, 5);
-
-        // Actualizamos el alumno en la lista
         Alumno alumnoModificado = modelo.getListaAlumnos().get(filaSeleccionada);
         alumnoModificado.setCodigo(vista.getTxtCodigo().getText());
         alumnoModificado.setNombre(vista.getTxtNombre().getText());
@@ -199,31 +182,34 @@ public class Controlador {
         alumnoModificado.setTelefono(vista.getTxtTelefono().getText());
         alumnoModificado.setFechaNacimiento(vista.getJCalendar().getDate());
 
-        // Salimos del modo edición
-        modoEdicion = false;
-        filaSeleccionada = -1;
+        mostrarAlumnos(); // Actualizamos la tabla
         JOptionPane.showMessageDialog(vista, "Alumno modificado correctamente.");
     } else {
         // Si no estamos en modo edición, agregamos un nuevo alumno
         Alumno nuevoAlumno = new Alumno(
-                vista.getTxtCodigo().getText(),
-                vista.getTxtNombre().getText(),
-                vista.getTxtApellido().getText(),
-                vista.getTxtDni().getText(),
-                vista.getTxtTelefono().getText(),
-                vista.getJCalendar().getDate()
+            vista.getTxtCodigo().getText(),
+            vista.getTxtNombre().getText(),
+            vista.getTxtApellido().getText(),
+            vista.getTxtDni().getText(),
+            vista.getTxtTelefono().getText(),
+            vista.getJCalendar().getDate()
         );
 
         modelo.agregar(nuevoAlumno);
-        mostrarAlumnos();
+        mostrarAlumnos(); // Actualizamos la tabla
         JOptionPane.showMessageDialog(vista, "Alumno guardado correctamente.");
     }
 
-    limpiarCampos();
+    limpiarCampos(); // Limpiamos los campos después de guardar
+
+    // Restablecemos las variables para el modo de agregar
+    modoEdicion = false; // Desactivamos el modo edición después de guardar
+    filaSeleccionada = -1; // Reiniciamos la selección de la fila
 }
 
 
-    
+
+ 
     // Método para limpiar los campos de texto
     private void limpiarCampos() {
         vista.getTxtCodigo().setText("");

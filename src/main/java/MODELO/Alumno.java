@@ -80,7 +80,28 @@ public class Alumno {
     public void setFechaNacimiento(Date fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
     }
+    
+    public int calcularEdad() {
+    if (fechaNacimiento == null) return 0;
 
+    java.util.Calendar hoy = java.util.Calendar.getInstance();
+    java.util.Calendar nacimiento = java.util.Calendar.getInstance();
+    nacimiento.setTime(fechaNacimiento);
+
+    // Calcular la edad
+    int edad = hoy.get(java.util.Calendar.YEAR) - nacimiento.get(java.util.Calendar.YEAR);
+    
+    // Verificar si el cumpleaños ya ocurrió este año
+    if (hoy.get(java.util.Calendar.MONTH) < nacimiento.get(java.util.Calendar.MONTH) || 
+        (hoy.get(java.util.Calendar.MONTH) == nacimiento.get(java.util.Calendar.MONTH) && 
+         hoy.get(java.util.Calendar.DAY_OF_MONTH) < nacimiento.get(java.util.Calendar.DAY_OF_MONTH))) {
+        edad--;
+    }
+    
+    return edad;
+}
+
+    
     @Override
     public String toString() {
         return "Alumno{" + "codigo=" + codigo + ", nombre=" + nombre + ", apellido=" + apellido + 
