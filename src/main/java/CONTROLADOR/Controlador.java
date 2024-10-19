@@ -28,33 +28,63 @@ public class Controlador {
     private int filaSeleccionada = -1; // Para guardar el índice de la fila seleccionada
 
 
-    // Constructor que acepta los parámetros FrmAlumno y AlumnoArray
     public Controlador(FrmAlumno vista, AlumnoArray modelo) {
-        this.vista = vista;
-        this.modelo = modelo;
-        this.tableModel = (DefaultTableModel) this.vista.getVistaRegistro().getModel();
+    this.vista = vista;
+    this.modelo = modelo;
+    this.tableModel = (DefaultTableModel) this.vista.getVistaRegistro().getModel();
 
-        
-        // Asignar los listeners a los botones
-        this.vista.getBtnGuardar().addActionListener(e -> guardarAlumno());
-        this.vista.getBtnEliminar().addActionListener(e -> eliminarAlumno());
-        this.vista.getBtnModificar().addActionListener(e -> modificarAlumno());
-        this.vista.getBtnAgregar().addActionListener(e -> agregarAlumno());
-        this.vista.getTxtBuscar().addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                buscarAlumno(vista.getTxtBuscar().getText());
-            }
-        });
+    // Asignar los listeners a los botones
+    this.vista.getBtnGuardar().addActionListener(e -> guardarAlumno());
+    this.vista.getBtnEliminar().addActionListener(e -> eliminarAlumno());
+    this.vista.getBtnModificar().addActionListener(e -> modificarAlumno());
+    this.vista.getBtnAgregar().addActionListener(e -> agregarAlumno());
+    this.vista.getTxtBuscar().addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyReleased(java.awt.event.KeyEvent evt) {
+            buscarAlumno(vista.getTxtBuscar().getText());
+        }
+    });
 
-        // Evento para seleccionar una fila y cargar los datos
-        this.vista.getVistaRegistro().addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                seleccionarFila();
-            }
-        });
+    // Asignar validaciones en tiempo real a los campos de texto
+    this.vista.getTxtNombre().addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyTyped(java.awt.event.KeyEvent evt) {
+            validarSoloLetras(evt);
+        }
+    });
 
-        mostrarAlumnos();
-    }
+    this.vista.getTxtApellido().addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyTyped(java.awt.event.KeyEvent evt) {
+            validarSoloLetras(evt);
+        }
+    });
+
+    this.vista.getTxtCodigo().addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyTyped(java.awt.event.KeyEvent evt) {
+            validarSoloNumeros(evt, vista.getTxtCodigo().getText(), 7);
+        }
+    });
+
+    this.vista.getTxtDni().addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyTyped(java.awt.event.KeyEvent evt) {
+            validarSoloNumeros(evt, vista.getTxtDni().getText(), 8);
+        }
+    });
+
+    this.vista.getTxtTelefono().addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyTyped(java.awt.event.KeyEvent evt) {
+            validarSoloNumeros(evt, vista.getTxtTelefono().getText(), 9);
+        }
+    });
+
+    // Evento para seleccionar una fila y cargar los datos
+    this.vista.getVistaRegistro().addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            seleccionarFila();
+        }
+    });
+
+    mostrarAlumnos();
+}
+
 
     private void agregarAlumno() {
     limpiarCampos(); // Aquí limpiamos los campos para permitir la entrada de un nuevo alumno
@@ -229,4 +259,24 @@ public class Controlador {
                  vista.getTxtTelefono().getText().isEmpty() ||
                  vista.getJCalendar().getDate() == null);
     }
+
+        // Método para validar que solo se ingresen letras en los campos de texto (sin mensajes)
+    private void validarSoloLetras(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isLetter(c) && !Character.isWhitespace(c)) {
+            evt.consume(); // No permitir que se ingrese el carácter
+        }
+    }
+
+    // Método para validar que solo se ingresen números con un límite de caracteres (sin mensajes)
+    private void validarSoloNumeros(java.awt.event.KeyEvent evt, String textoActual, int limite) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) || textoActual.length() >= limite) {
+            evt.consume(); // No permitir que se ingrese el carácter
+        }
+    }
+
 }
+
+
+
